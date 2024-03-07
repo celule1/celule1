@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+<title>Mobile Maps</title>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!--link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" /-->
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="js/leaflet.circle-sector.js" ></script>
+
+
+<style>
+	html, body {
+		height: 100%;
+		margin: 0;
+	}
+	#map {
+		width: 600px;
+		height: 400px;
+	}
+	#control {
+		position: absolute;
+		right: 0;
+		top: 0;
+		z-index: 999;
+		background: #00000022;
+		text-shadow: 1px 1px 1px #777;
+		font-family: arial, sans-serif;
+		padding: 0.25rem;
+	}
+	input[type='number']{width: 100px;} 
+</style>
+
+<style>body { padding: 0; margin: 0; } #map { height: 100%; width: 100%; }</style>
+</head>
+<body>
+<div id='map'></div>
+<div id="control">
+	<table>
+		<tr>
+			<td> <label for="lat">LATITUDINE:</label> </td>
+			<td> <input type="number" id="lat" name="lat" onkeypress="return (event.charCode !=8 && event.charCode ==0 || ( event.charCode == 46 || (event.charCode >= 48 && event.charCode <= 57)))" />	</td>
+		</tr>
+		<tr>
+			<td> <label for="lon">LONGITUDINE:</label> </td>
+			<td> <input type="number" id="lon" name="lon" onkeypress="return (event.charCode !=8 && event.charCode ==0 || ( event.charCode == 46 || (event.charCode >= 48 && event.charCode <= 57)))" /> </td>
+		</tr>
+		<tr>
+			<td> <label for="azimuth">AZIMUT:</label> </td>
+			<td> <input type="number" id="azimuth" name="azimuth" onkeypress="return (event.charCode !=8 && event.charCode ==0 || ( event.charCode == 46 || (event.charCode >= 48 && event.charCode <= 57)))" /> </td>
+		</tr>
+		<tr>
+			<td> <label for="radius">RAZA:</label> </td>
+			<td> <input type="number" id="radius" name="radius" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" /> </td>
+		</tr>
+		<tr>
+			<td> <label for="angle">UNGHI:</label> </td>
+			<td> <input type="number" id="angle" name="angle" value=120 onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" /> </td>
+		</tr>
+
+		<tr>
+			<td> <input type="button" value="Localizeaza" onclick="javascript:setLocation();"></td>
+			<td>
+			<input type="reset" value="Reset" onclick="javascript:eraseLocation();">
+			<input type="button" value="Locatia mea" onclick="javascript:myLocation();">
+
+			</td>
+		</tr>
+	</table>
+	
+
+</div>
+
+<script>
+	var map = L.map('map').fitWorld();
+	var i=1;
+
+	init_map();
+
+	function init_map()
+	{
+		L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		}).addTo(map);
+		map.setView(new L.LatLng(46.10, 25.10), 7);
+	}
+
+	function onLocationFound(e) {
+		var radius = e.accuracy / 2;
+
+		L.marker(e.latlng).addTo(map)
+			.bindPopup("You are within " + radius.toFixed(2) + " meters from this point").openPopup();
+
+		L.circle(e.latlng, radius).addTo(map);
+	}
+
+	function onLocationError(e) {
+		alert(e.message);
+	}
+
+	function myLocation()
+	{
+		map.on('locationfound', onLocationFound);
+		map.on('locationerror', onLocationError);
+		map.locate({setView: true, maxZoom: 16});
+	}
+
+	function setLocation()
+	{
+		var lat=parseFloat(document.getElementById("lat").value);
+		var lon=parseFloat(document.getElementById("lon").value);
+		var azimuth=parseInt(document.getElementById("azimuth").value);
+		var radius=parseInt(document.getElementById("radius").value);
+		var angle=parseInt(document.getElementById("angle").value);
+		//    var angle=120;
+
+		if (document.getElementById("lat").value == "" || document.getElementById("lon").value == "" || document.getElementById("azimuth").value == "" || document.getElementById("radius").value == ""|| document.getElementById("angle").value == ""
+		) {
+			alert ("Completati toate datele necesare!");
+		}
+		else
+		{
+			//map = new L.Map('map');
+			L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				maxZoom: 19,
+				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+			}).addTo(map);
+
+
+			map.setView(new L.LatLng(lat, lon), 14);
+			L.marker([lat, lon],{opacity:0.7}).addTo(map)
+			.bindPopup(i+"")
+			.openPopup();
+			i++;
+			var sector = L.circle([lat, lon], {
+				color: 'blue',
+				radius: radius,
+				weight: 1
+			})
+			.setSector(azimuth, angle) // direction, centralAngle
+			.bindPopup('Localizarea tintei')
+			.addTo(map);
+
+			map.fitBounds(sector.getBounds().pad(0.1));
+
+		}
+	}
+
+	function eraseLocation()
+	{
+		//myControl.remove(map);
+		//map.off();
+		map.remove();
+		map = L.map('map').fitWorld();
+		 i=0;
+		init_map();
+	}
+	
+</script>
+
+</body>
+</html>
