@@ -47,7 +47,7 @@ var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     });
 
 /////////////////////
-	setLocation();
+	//setLocation();
 
 	function onLocationFound(e) {
 		var radius = e.accuracy / 2;
