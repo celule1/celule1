@@ -12,6 +12,14 @@ var map = L.map('map').fitWorld();
 		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 	}).addTo(map);
 	map.setView(new L.LatLng(lat, lon), 8);
+//////////////////
+L.control.layers({
+        'osm': osm.addTo(map),
+        "google": L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+            attribution: 'google'
+        })
+    }, { 'drawlayer': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);
+////////////////////
 	setLocation();
 
 	function onLocationFound(e) {
@@ -34,40 +42,37 @@ var map = L.map('map').fitWorld();
 	map.locate({setView: true, maxZoom: 20});
 	}
 	function setLocation()
-			{
-	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		{
+		L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
 		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 	}).addTo(map);
 					
-						
-					map.setView(new L.LatLng(lat, lon), 14);
-					L.marker([lat, lon],{opacity:0.7}).addTo(map)
+	map.setView(new L.LatLng(lat, lon), 14);
+	L.marker([lat, lon],{opacity:0.7}).addTo(map)
 					.bindPopup(i+"")
 					.openPopup();
-					i++;
-					var sector = L.circle([lat, lon], {
-													color: 'red',
-													radius: radius,
-													weight: 1
-												})
+	i++;
+	var sector = L.circle([lat, lon], {
+					color: 'red',
+					radius: radius,
+					weight: 1
+					})
 						.setSector(azimuth, angle)
 						.bindPopup('Localizarea tintei')
 						.addTo(map);
 				
-					map.fitBounds(sector.getBounds().pad(0.1));
-			
+	map.fitBounds(sector.getBounds().pad(0.1));
 			}
 			
-			function eraseLocation()
+	function eraseLocation()
 			{
-				
-				map.remove();
-				map = new L.Map('map');
+			map.remove();
+			map = new L.Map('map');
 			L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
 		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 	}).addTo(map);
-				map.setView(new L.LatLng(46.10, 25.10), 8); //center of Romania
+			map.setView(new L.LatLng(46.10, 25.10), 8); //center of Romania
 			}
 	
